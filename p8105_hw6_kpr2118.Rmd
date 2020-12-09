@@ -346,7 +346,11 @@ rsquarehat_p =
     geom_density()
 
 rsquarehat_p
+```
 
+For the rsquared(hat), the distribution peaks around 0.91. Additionally, it is between 0.87 and 0.94. The rsquared has a bell shape distribution which indicates normality. 
+
+```{r}
 log_p = 
   bs_max_min_results %>% 
   ggplot(aes(x = log_beta0_beta1)) +
@@ -354,8 +358,6 @@ log_p =
 
 log_p
 ```
-
-For the rsquared(hat), the distribution peaks around 0.91. Additionally, it is between 0.87 and 0.94. The rsquared has a bell shape distribution which indicates normality. 
 
 For the log of beta0(hat)*beta1(hat), the distribution is also bell shaped but peaks at 2.02 and ranges from 1.925 and 2.10. This plot also has a normal looking distribution. 
 
