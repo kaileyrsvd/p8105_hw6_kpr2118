@@ -272,3 +272,75 @@ weather_df =
   select(name, id, everything())
 ```
 
+Linear model... 
+
+```{r}
+max_min_df = 
+  lm(tmax ~ tmin, data = weather_df)
+
+summary(max_min_df)
+broom::glance(max_min_df)
+```
+
+One bootstrap... function form... 
+
+```{r}
+boot_max_min = function(df) { 
+  
+  sample_frac(df, replace = TRUE) %>% 
+    arrange(tmin)
+  
+}
+
+boot_max_min(weather_df) %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point() + 
+  geom_smooth(methog = "lm")
+
+boot_max_min(weather_df) %>% 
+  lm(tmax ~ tmin, data = .) %>% 
+  broom::tidy()
+```
+
+Use 5000 bootstrap samples and for each, produce estimates of interest...
+
+```{r}
+boot_straps_max_min = 
+  tibble(
+    strap_number = 1:5000, 
+    strap_sample = rerun(5000, boot_max_min(weather_df))
+  )
+
+bs_max_min_results = 
+  boot_straps_max_min %>% 
+  mutate( 
+    models = map(strap_sample, ~lm(tmax ~ tmin, data = .x)),
+    get_rsqhat = map(models, broom::glance), 
+    get_log = map(models, broom::tidy)
+    ) %>% 
+  unnest(get_rsqhat) %>% 
+  select(strap_number, r.squared, get_log) %>% 
+  unnest(get_log) %>% 
+  select(strap_number, term, r.squared, estimate) %>% 
+  pivot_wider(
+    names_from = term,
+    values_from = estimate
+  ) %>% 
+  rename(
+    intercept = `(Intercept)`
+  ) %>% 
+  mutate(
+    log_beta0_beta1 = log(intercept*tmin)
+  ) %>% 
+  select(strap_number, r.squared, log_beta0_beta1)
+```
+
+
+
+
+
+
+
+
+
+
