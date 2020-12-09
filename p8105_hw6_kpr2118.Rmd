@@ -124,6 +124,48 @@ birthweight_df =
   )
 ```
 
+Regression model for birthweight...
+
+#### Modeling Process
+
+Factors the underlay birthweight based on literature search:
+babysex bhead blength delwt fincome frace gaweeks momage mrace parity pnumlbw pnumgsa ppbmi ppwt smoken 
+
+Take out factors that are too alike and might cause multicolinearity:
+babysex bhead blength delwt fincome frace gaweeks momage mrace parity pnumlbw ppbmi ppwt smoken
+
+```{r}
+factors_of_int_df = 
+  lm(bwt ~  babysex + bhead + blength + delwt + fincome + frace + gaweeks + momage + mrace + parity + pnumlbw + ppbmi + ppwt + smoken, data = birthweight_df)
+```
+
+Look at results..  
+
+```{r}
+summary(factors_of_int_df)
+
+broom::glance(factors_of_int_df)
+```
+
+Looking at the summary of the model p-values: fincome, frace, momage, mrace 3 and 4, and ppwt are not significant to the model. Further, parity is not highly significant to the model. I will keep mrace because one indicator variable was significant. Additionally, pnumlbw does not have enough data points. In my proposed model I will exclude all of the variables mentioned above, except mrace. 
+
+R square is 71.8%
+
+```{r}
+proposed_model_df = 
+  lm(bwt ~ bhead + blength + mrace + delwt + gaweeks + ppbmi + smoken, data = birthweight_df)
+
+summary(proposed_model_df)
+
+broom::glance(proposed_model_df)
+```
+
+I removed babysex becuase when removing, it caused no change to the R square. 
+
+R square is 71.7%
+
+#### Residuals against fitted values
+
 
 
 
