@@ -105,6 +105,24 @@ models_results_df %>%
 ```
 
 Comment on plot HERE
+Plot shows the ORs comparing male homicide victims to female homicide victims... relative to homicides more or less likely to be resolved by arrest
+Less often that male homicide victim cases are resolved by arrest
+
+## Problem 2
+
+Load and clean data
+
+```{r}
+birthweight_df = 
+  read_csv("./data/birthweight.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    babysex = as.factor(babysex), 
+    frace = as.factor(frace), 
+    malform = as.factor(malform), 
+    mrace = as.factor(mrace)
+  )
+```
 
 
 
