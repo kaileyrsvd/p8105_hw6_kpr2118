@@ -129,10 +129,10 @@ Regression model for birthweight...
 #### Modeling Process
 
 Factors the underlay birthweight based on literature search:
-babysex bhead blength delwt fincome frace gaweeks momage mrace parity pnumlbw pnumgsa ppbmi ppwt smoken 
+`babysex` `bhead` `blength` `delwt` `fincome` `frace` `gaweeks` `momage` `mrace` `parity` `pnumlbw` `pnumgsa` `ppbmi` `ppwt` `smoken` 
 
 Take out factors that are too alike and might cause multicolinearity:
-babysex bhead blength delwt fincome frace gaweeks momage mrace parity pnumlbw ppbmi ppwt smoken
+`babysex` `bhead` `blength` `delwt` `fincome` `frace` `gaweeks` `momage` `mrace` `parity` `pnumlbw` `ppbmi` `ppwt` `smoken`
 
 ```{r}
 factors_of_int_df = 
@@ -147,7 +147,7 @@ summary(factors_of_int_df)
 broom::glance(factors_of_int_df)
 ```
 
-Looking at the summary of the model p-values: fincome, frace, momage, mrace 3 and 4, and ppwt are not significant to the model. Further, parity is not highly significant to the model. I will keep mrace because one indicator variable was significant. Additionally, pnumlbw does not have enough data points. In my proposed model I will exclude all of the variables mentioned above, except mrace. 
+Looking at the summary of the model p-values: `fincome`, `frace`, `momage`, `mrace` 3 and 4, and `ppwt` are not significant to the model. Further, `parity` is not highly significant to the model. I will keep `mrace` because one indicator variable was significant. Additionally, `pnumlbw` does not have enough data points. In my proposed model I will exclude all of the variables mentioned above, except `mrace.` 
 
 R square is 71.8%
 
@@ -160,7 +160,7 @@ summary(proposed_model_df)
 broom::glance(proposed_model_df)
 ```
 
-I removed babysex becuase when removing, it caused no change to the R square. 
+I removed `babysex` becuase when removing, it caused no change to the R square. 
 
 R square is 71.7%
 
@@ -179,18 +179,20 @@ resid_pred_p =
 resid_pred_p
 ```
 
-Majority of predictions are around 3200 and majority of residuals are around 0. There are some outliers at in the lower half of this plot (~ y axis range -200 to 900). 
-
 Comparing model to two others... 
 
 ```{r}
 main_effects_df = 
   lm(bwt ~ blength + gaweeks, data = birthweight_df)
+
+broom::glance(main_effects_df)
 ```
 
 ```{r}
 interactions_df = 
   lm(bwt ~ babysex * bhead *blength, data = birthweight_df)
+
+broom::glance(interactions_df)
 ```
 
 Cross-validated prediction error: 
@@ -217,10 +219,38 @@ cv_birthweight_df =
 What do these results say about model choice? 
 
 ```{r}
-
+cv_birthweight_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(), 
+    names_to = "model", 
+    values_to = "rmse", 
+    names_prefix = "rmse_"
+  ) %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_violin()
 ```
 
+Compute averages... 
+
+```{r}
+cv_birthweight_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(), 
+    names_to = "model", 
+    values_to = "rmse", 
+    names_prefix = "rmse_"
+  ) %>%
+  group_by(model) %>% 
+  summarize(avg_rmse = mean(rmse))
+```
+
+Model choice? 
+
+As we can see from the violin plot, *maineff* does not have great model fit because it will not predict birthweight sufficiently. 
+The *interactions* and *proposed* models see improvement from *maineff*. 
 
 
-
+In choosing a model, the model that will best predict birthweight, from the three models compared in this assignment, is the *proposed* model. This model has the lowest average rmse (275) and the smallest distribution of errors.
 
